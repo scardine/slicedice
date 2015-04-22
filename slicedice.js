@@ -23,7 +23,9 @@ var SliceDice = function(config) {
             }
             case 'linear': {
                 return function(v) {
-                    var slice_size = Math.round((config.max - config.min) / config.slices);
+                    if (v < self.min) return 0;
+                    if (v >= self.max) return self.config.slices - 1;
+                    var slice_size = Math.round((self.max - self.min) / config.slices);
                     return Math.floor(v / slice_size);
                 }
             }
@@ -74,38 +76,6 @@ var SliceDice = function(config) {
             }
         });
     }
-};
-
-
-var getScale = function(name) {
-    var config = this.config;
-
-    switch (name) {
-        case 'quantile': {
-            return d3.scale.quantile().range(_.range(config.slices)).domain(config.sample);
-        }
-        case 'linear': {
-            return function(v) {
-                var slice_size = Math.round((config.max - config.min) / config.slices);
-                return Math.floor(v / slice_size);
-            }
-        }
-        case 'custom': {
-            return function(v) {
-                if (v < self.min) return 0;
-                if (v >= self.max) return self.config.slices - 1;
-                if (self.config.ranges === undefined) throw 'For custom scales you must provide a "ranges" parameter.';
-                for (var i = 0; i < config.slices; i++) {
-                    if (v >= self.config.ranges[i].start && v < self.config.ranges[i].end) return i;
-                }
-            }
-        }
-        case 'log': {
-            return d3.scale.log().range(_.range(config.slices)).domain(config.sample);
-        }
-    }
-
-    throw "Unknown scale";
 };
 
 

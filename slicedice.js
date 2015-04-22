@@ -57,7 +57,7 @@ var SliceDice = function(config) {
         if (this.config.scale === undefined) {
             scale = getScale('quantile');
         } else if (typeof this.config.scale == 'string') {
-            scale = getScale(scale);
+            scale = getScale(this.config.scale);
         } else if (typeof this.config.scale == 'function') {
             scale = this.config.scale;
         } else {

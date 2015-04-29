@@ -72,7 +72,13 @@ var SliceDice = function(config) {
             var range = scale(v);
             self.ranges[range].end = v;
             if (range > 0) {
-                self.ranges[range].start = self.ranges[range - 1].end;
+                var anterior = self.ranges[range - 1],
+                    atual = self.ranges[range];
+                if (anterior.end == 0 && anterior.start == 0) {
+                    // TODO: empty slice?
+                } else {
+                    atual.start = anterior.end;
+                }
             }
         });
     }

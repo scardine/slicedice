@@ -43,9 +43,9 @@ var SliceDice = function(config) {
                     if (i == 0) {
                         range.start = self.min;
                     } else {
-                        range.start = ranges[i - 1].max;
+                        range.start = ranges[i - 1].end;
                     }
-                    if (i == ranges.length) {
+                    if (i == (ranges.length - 1)) {
                         range.end = self.max;
                     } else {
                         range.end = (config.sample.length / config.slices) * (i + 1);
@@ -56,7 +56,10 @@ var SliceDice = function(config) {
                     });
                 });
                 self.scale = function(v) {
-                    return _.findIndex(ranges, function (range) { if (v >= range.start && v < range.end) return true; });
+                    return _.findIndex(ranges, function (range) {
+                        if (range.end == self.max && v == range.end) return true;
+                        if (v >= range.start && v < range.end) return true;
+                    });
                 };
                 return ranges;
             }

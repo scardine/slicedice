@@ -4,7 +4,8 @@ var SliceDice = function(config) {
     this.config = {
         sample: [],
         normalize: parseFloat,
-        slices: 5
+        slices: 5,
+        decimals: 0
     };
     _.assign(this.config, config);
 
@@ -48,7 +49,7 @@ var SliceDice = function(config) {
                     if (i == (ranges.length - 1)) {
                         range.end = self.max;
                     } else {
-                        range.end = (config.sample.length / config.slices) * (i + 1);
+                        range.end = ((config.sample.length / config.slices) * (i + 1)).toFixed(config.decimals);
                     }
                     range.data = _.filter(config.sample, function(v) {
                         if (range.end == self.max && v == range.end) return v;

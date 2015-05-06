@@ -68,13 +68,16 @@ var SliceDice = function(config) {
                         start: range.start,
                         end: range.end,
                         data: _.filter(config.sample, function(v) {
-                                   if (range.max == self.max && v == range.max) return v;
-                                   return v >= range.min && v < range.max;
+                                   if (range.end == self.max && v == range.end) return v;
+                                   return v >= range.start && v < range.end;
                              })
                     }
                 });
                 self.scale = function(v) {
-                    return _.findIndex(ranges, function (range) { if (v >= range.start && v < range.end) return true; });
+                    return _.findIndex(ranges, function (range) {
+                        if (range.end == self.max && v == range.end) return true;
+                        if (v >= range.start && v < range.end) return true;
+                    });
                 };
                 return ranges;
             }

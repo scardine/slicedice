@@ -15,82 +15,85 @@ var SliceDice = function(config) {
     this.min = d3.min(this.config.sample);
 
     var getScale = function(name) {
-        var config = self.config;
+        var config = self.config,
+            ranges = _.map(_.range(config.slices), function(v, i) {
+                return {
+                    index: i,
+                    start: NaN,
+                    end: NaN,
+                    data: []
+                };
+            });
 
         switch (name) {
             case 'quantile': {
-                return d3.scale.quantile().range(_.range(config.slices)).domain(config.sample);
+                self.scale = d3.scale.quantile().range(_.range(config.slices)).domain(config.sample);
+                _.each(ranges, function(range, i) {
+                    range.data = _.filter(config.sample, function(v) { return self.scale(v) == i; });
+                    range.start = _.min(range.data);
+                    if (i > 0) {
+                        ranges[i - 1].end = range.start;
+                    }
+                    range.end = _.max(range.data);
+                });
+                return ranges;
             }
             case 'linear': {
-                return function(v) {
-                    if (v < self.min) return 0;
-                    if (v >= self.max) return self.config.slices - 1;
-                    var slice_size = Math.round((self.max - self.min) / config.slices);
-                    return Math.floor(v / slice_size);
-                }
+                _.each(ranges, function(range, i) {
+                    if (i == 0) {
+                        range.start = self.min;
+                    } else {
+                        range.start = ranges[i - 1].max;
+                    }
+                    if (i == ranges.length) {
+                        range.end = self.max;
+                    } else {
+                        range.end = (config.sample.length / config.slices) * (i + 1);
+                    }
+                    range.data = _.filter(config.sample, function(v) {
+                        if (range.end == self.max && v == range.end) return v;
+                        return v >= range.start && v < range.end;
+                    });
+                });
+                self.scale = function(v) {
+                    return _.findIndex(ranges, function (range) { if (v >= range.start && v < range.end) return true; });
+                };
+                return ranges;
             }
             case 'custom': {
-                return function(v) {
-                    if (v < self.min) return 0;
-                    if (v >= self.max) return self.config.slices - 1;
-                    if (self.config.ranges === undefined) throw 'For custom scales you must provide a "ranges" parameter.';
-                    for (var i = 0; i < config.slices; i++) {
-                        if (v >= self.config.ranges[i].start && v < self.config.ranges[i].end) return i;
+                if (config.ranges === undefined) throw 'For custom scales you must provide a "ranges" parameter.';
+                ranges = _.map(config.ranges, function(range, i) {
+                    return {
+                        index: i,
+                        start: range.start,
+                        end: range.end,
+                        data: _.filter(config.sample, function(v) {
+                                   if (range.max == self.max && v == range.max) return v;
+                                   return v >= range.min && v < range.max;
+                             })
                     }
-                }
+                });
+                self.scale = function(v) {
+                    return _.findIndex(ranges, function (range) { if (v >= range.start && v < range.end) return true; });
+                };
+                return ranges;
             }
             case 'log': {
-                return d3.scale.log().range(_.range(config.slices)).domain(config.sample);
+                throw "Log scales are unimplemented";
             }
         }
 
         throw "Unknown scale";
     };
 
-    if (this.unique.length <= this.config.slices) {
-        this.config.slices = this.unique.length;
-        this.ranges = _.map(this.unique, function(v, i) {
-            return {index: i, start: v, end: v};
-        });
-    } else {
-        var scale;
-        if (this.config.scale === undefined) {
-            scale = getScale('quantile');
-        } else if (typeof this.config.scale == 'string') {
-            scale = getScale(this.config.scale);
-        } else if (typeof this.config.scale == 'function') {
-            scale = this.config.scale;
-        } else {
-            throw "invalid scale";
-        }
-
-        this.ranges = _.map(_.range(this.config.slices), function(v, i) {
-            return {index: i, start: self.min, end: self.min};
-        });
-
-        _.each(this.config.sample, function(v, i) {
-            var range = scale(v);
-            self.ranges[range].end = v;
-            if (range > 0) {
-                var prev = self.ranges[range - 1],
-                    curr = self.ranges[range];
-                if (prev.end == 0 && prev.start == 0) {
-                    // TODO: empty slice?
-                } else {
-                    curr.start = prev.end;
-                }
-            }
-        });
-    }
+    this.ranges = getScale(this.config.scale);
 };
 
 
 SliceDice.prototype.getRange = function(v) {
-    for(var i=0; i < this.ranges.length; i++) {
-        if(v >= this.ranges[i].start && v < this.ranges[i].end) return this.ranges[i];
-    }
-    if (v < this.min) return this.ranges[0];
-    return this.ranges[this.ranges.length-1];
+    if (v <= this.min) return this.ranges[0];
+    if (v >= this.max) return _.last(this.ranges);
+    return this.ranges[this.scale(v)];
 };
 
 

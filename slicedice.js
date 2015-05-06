@@ -42,14 +42,14 @@ var SliceDice = function(config) {
             case 'linear': {
                 _.each(ranges, function(range, i) {
                     if (i == 0) {
-                        range.start = self.min.toFixed(config.decimals);
+                        range.start = parseFloat(self.min.toFixed(config.decimals));
                     } else {
                         range.start = ranges[i - 1].end;
                     }
                     if (i == (ranges.length - 1)) {
                         range.end = self.max.toFixed(config.decimals);
                     } else {
-                        range.end = ((self.max / config.slices) * (i + 1)).toFixed(config.decimals);
+                        range.end = parseFloat(((self.max / config.slices) * (i + 1)).toFixed(config.decimals));
                     }
                     range.data = _.filter(config.sample, function(v) {
                         if (range.end == self.max && v == range.end) return v;

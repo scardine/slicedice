@@ -42,12 +42,12 @@ var SliceDice = function(config) {
             case 'linear': {
                 _.each(ranges, function(range, i) {
                     if (i == 0) {
-                        range.start = self.min;
+                        range.start = self.min.toFixed(config.decimals);
                     } else {
                         range.start = ranges[i - 1].end;
                     }
                     if (i == (ranges.length - 1)) {
-                        range.end = self.max;
+                        range.end = self.max.toFixed(config.decimals);
                     } else {
                         range.end = ((config.sample.length / config.slices) * (i + 1)).toFixed(config.decimals);
                     }

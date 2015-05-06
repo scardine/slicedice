@@ -52,7 +52,7 @@ var SliceDice = function(config) {
                         range.end = ((self.max / config.slices) * (i + 1)).toFixed(config.decimals);
                     }
                     range.data = _.filter(config.sample, function(v) {
-                        if (range.end == self.max && v == range.end) return v;
+                        if (range.end == self.max && v == range.end) return true;
                         return v >= parseFloat(range.start) && v < parseFloat(range.end);
                     });
                 });

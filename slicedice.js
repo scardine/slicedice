@@ -51,10 +51,6 @@ var SliceDice = function(config) {
                     } else {
                         range.end = ((self.max / config.slices) * (i + 1)).toFixed(config.decimals);
                     }
-                    range.data = _.filter(config.sample, function(v) {
-                        if (range.end == self.max && v == range.end) return true;
-                        return v >= parseFloat(range.start) && v < parseFloat(range.end);
-                    });
                 });
                 self.scale = function(v) {
                     return _.findIndex(ranges, function (range) {
@@ -62,6 +58,11 @@ var SliceDice = function(config) {
                         if (v >= parseFloat(range.start) && v < parseFloat(range.end)) return true;
                     });
                 };
+                _.each(ranges, function(range) {
+                    range.data = _.filter(config.sample, function(v) {
+                        return self.scale(v) == range.index;
+                    });
+                });
                 return ranges;
             }
             case 'custom': {

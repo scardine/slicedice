@@ -49,7 +49,7 @@ var SliceDice = function(config) {
                     if (i == (ranges.length - 1)) {
                         range.end = self.max.toFixed(config.decimals);
                     } else {
-                        range.end = (((self.max - self.min) / config.slices) * (i + 1)).toFixed(config.decimals);
+                        range.end = (self.min + ((self.max - self.min) / config.slices) * (i + 1)).toFixed(config.decimals);
                     }
                 });
                 self.scale = function(v) {

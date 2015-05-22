@@ -37,7 +37,7 @@ var SliceDice = function(config) {
                     }
                     range.end = _.max(range.data);
                 });
-                return ranges;
+                return _.filter(ranges, function(r) { return r !== Infinity; });
             }
             case 'linear': {
                 _.each(ranges, function(range, i) {
@@ -98,6 +98,7 @@ var SliceDice = function(config) {
     };
 
     this.ranges = getScale(this.config.scale);
+    this.config.slices = this.ranges.length;
 };
 
 

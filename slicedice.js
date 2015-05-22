@@ -55,7 +55,8 @@ var SliceDice = function(config) {
                 self.scale = function(v) {
                     return _.findIndex(ranges, function (range) {
                         if (range.end == self.max && v == range.end) return true;
-                        if (v >= parseFloat(range.start) && v < parseFloat(range.end)) return true;
+                        if (range.start == self.min && v == range.start) return true;
+                        if (v > parseFloat(range.start) && v <= parseFloat(range.end)) return true;
                     });
                 };
                 _.each(ranges, function(range) {
@@ -74,14 +75,16 @@ var SliceDice = function(config) {
                         end: range.end,
                         data: _.filter(config.sample, function(v) {
                                    if (range.end == self.max && v == range.end) return v;
-                                   return v >= range.start && v < range.end;
+                                   if (range.start == self.min && v == range.start) return v;
+                                   return v > range.start && v <= range.end;
                              })
                     }
                 });
                 self.scale = function(v) {
                     return _.findIndex(ranges, function (range) {
                         if (range.end == self.max && v == range.end) return true;
-                        if (v >= range.start && v < range.end) return true;
+                        if (range.start == self.min && v == range.start) return true;
+                        if (v > range.start && v <= range.end) return true;
                     });
                 };
                 return ranges;

@@ -37,7 +37,12 @@ var SliceDice = function(config) {
                     }
                     range.end = _.max(range.data);
                 });
-                return _.filter(ranges, function(r) { return r !== Infinity; });
+                var valid_ranges = _.filter(ranges, function(r) { return r.start !== Infinity && r.end !== Infinity; });
+                if(valid_ranges.length == ranges.length) return ranges;
+                _.each(valid_ranges, function(r, i) {
+                    r.index = i;
+                });
+                return valid_ranges;
             }
             case 'linear': {
                 _.each(ranges, function(range, i) {
